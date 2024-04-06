@@ -7,16 +7,41 @@ class Customer{
     std::string _name;
     std::string _location;
     int _age;
-    double _business_done;
-    int _transaction_count;
+    double _business_done = 0;
+    int _transaction_count = 0;
     int _id;
 
 public:
-    Customer(std::string name, std::string location, int age){
+    Customer(std::string name = "name", int age = 0, std::string location = "location"){
+        _name = name;
+        _location = location;
+        _age = age;
+        _id = ++_s_id_generator;
+        ++_s_count;
+
     };
-    ~Customer();
+    ~Customer(){
+        _s_count --;
+    };
+
+    void do_business(double amount){
+        _business_done += amount;
+        _transaction_count++;
+    };
+
+    static int get_s_count(){
+        return _s_count;
+    };
+
+    void print(){
+        std::cout << "Kunde " << _name << " aus " << _location << " (ID = " << _id << ", " << _age << " Jahre) hatte "
+        << _transaction_count << " Transaktion(en) und " << _business_done << " Euro Umsatz" << std::endl;
+    };
 
 };
+
+int Customer::_s_count = 0;
+int Customer::_s_id_generator = _s_count;
 
 
 int main(int argc, char *argv[]) {
