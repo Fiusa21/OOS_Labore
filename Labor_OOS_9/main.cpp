@@ -11,19 +11,19 @@ public:
 
     Date operator+(int days) {
         Date date = Date (_day, _month, _year); //make local copy
+        const int daysInMonth = 30;
+        const int monthsInYear = 12;
 
         //add days
         date._day += days;
 
         //handle overflow in days
-        int daysInMonth = 30; // Assuming each month has 30 days
         if (date._day > daysInMonth) {
             date._month += date._day / daysInMonth;
             date._day %= daysInMonth;
         }
 
         //handle overflow in months
-        int monthsInYear = 12; // Assuming 12 months in a year
         if (date._month > monthsInYear) {
             date._year += date._month / monthsInYear;
             date._month %= monthsInYear;
