@@ -1,0 +1,3 @@
+C:/Users/rootys/CLionProjects/OOS_Labore/Labor_OOS_1/cmake-build-debug/CMakeFiles/Labor_OOS_1.dir
+C:/Users/rootys/CLionProjects/OOS_Labore/Labor_OOS_1/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/rootys/CLionProjects/OOS_Labore/Labor_OOS_1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
