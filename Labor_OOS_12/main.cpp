@@ -54,7 +54,7 @@ public:
     A(int a = 0xA) : _a(a) {}
 };
 
-class B : public A {
+class B : virtual public A {
 public:
     int _b;
     B(int a = 0xBA, int b = 0xB) : A(a), _b(b) {}
@@ -66,13 +66,13 @@ public:
             : B(a, b) {}
 };
 
-class C2 : public B {
+class C2 : virtual public B {
 public:
     C2(int a = 0xC2A, int b = 0xC2B)
             : B(a, b) {}
 };
 
-class C3 : public B {
+class C3 : virtual public B {
 public:
     C3(int a = 0xC3A, int b = 0xC3B)
             : B(a, b) {}
@@ -82,7 +82,7 @@ class D1 : public C2, public C3 {
 public:
     D1(int c2_a = 0xD1C2A, int c3_a = 0xD1C3A,
        int c2_b = 0xD1C2B, int c3_b = 0xD1C3B)
-            : C2(c2_a, c2_b), C3(c3_a, c3_b) {}
+            : C2(c2_a, c2_b), C3(c3_a, c3_b), A(0xD1A) {}
     void print() {
         cout << "D1::print() ..." << endl;
         string names[] = { "C2::a", "C3::a", "C2::b", "C3::b" };
@@ -95,7 +95,7 @@ class D2 : public C1, public C2, public C3 {
 public:
     D2(int c1_a = 0xD2C1A, int c2_a = 0xD2C2A, int c3_a = 0xD2C3A,
        int c1_b = 0xD2C1B, int c2_b = 0xD2C2B, int c3_b = 0xD2C3B)
-            : C1(c1_a, c1_b), C2(c2_a, c2_b), C3(c3_a, c3_b) {}
+            : C1(c1_a, c1_b), C2(c2_a, c2_b), C3(c3_a, c3_b), B(0xBA, 0XD2B) {}
 
     void print() {
         cout << "D2::print() ..." << endl;
