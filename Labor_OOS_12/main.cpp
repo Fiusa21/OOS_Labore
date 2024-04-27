@@ -80,7 +80,7 @@ public:
 
 class D1 : public C2, public C3 {
 public:
-    D1(int c2_a = 0xD1C2A, int c3_a = 0xD1C3A,
+    explicit D1(int c2_a = 0xD1C2A, int c3_a = 0xD1C3A,
        int c2_b = 0xD1C2B, int c3_b = 0xD1C3B)
             : C2(c2_a, c2_b), C3(c3_a, c3_b), A(0xD1A) {}
     void print() {
@@ -93,7 +93,7 @@ public:
 
 class D2 : public C1, public C2, public C3 {
 public:
-    D2(int c1_a = 0xD2C1A, int c2_a = 0xD2C2A, int c3_a = 0xD2C3A,
+    explicit D2(int c1_a = 0xD2C1A, int c2_a = 0xD2C2A, int c3_a = 0xD2C3A,
        int c1_b = 0xD2C1B, int c2_b = 0xD2C2B, int c3_b = 0xD2C3B)
             : C1(c1_a, c1_b), C2(c2_a, c2_b), C3(c3_a, c3_b), B(0xBA, 0XD2B) {}
 
