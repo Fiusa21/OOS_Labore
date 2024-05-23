@@ -13,8 +13,7 @@ public:
     Person(string name, int check_out_duration = 0);
     int get_check_out_duration() const;
     string get_name() const;
-
-    virtual void print() const;
+    void print() const;
 };
 
 Person::Person(string name, int check_out_duration)
@@ -103,17 +102,17 @@ Date::Date(int d, int m, int y)
 }
 
 // hier Konvertierkonstruktor für String
-Date::Date(const string &) {
-    _day = 0;
-    _month = 0;
-    _year = 0;
+Date::Date(const string &dateString) {
+    stringstream ss(dateString);
+    char dot; // to consume the dots between day, month, and year
+    ss >> _day >> dot >> _month >> dot >> _year;
 }
 
 // hier Konvertierkonstruktor für C-String
-Date::Date(const char *){
-    _day = 0;
-    _month = 0;
-    _year = 0;
+Date::Date(const char *dateString) {
+    stringstream ss(dateString);
+    char dot; // to consume the dots between day, month, and year
+    ss >> _day >> dot >> _month >> dot >> _year;
 }
 
 Date Date::operator+(int days)
@@ -145,7 +144,7 @@ class Medium
 
 protected:
     // Titel des Mediums
-    static const string _title;
+    const string _title;
     // Verlag, der das Medium herausgibt
     const string _publisher;
     // Jahr, in dem das Medium veröffentlicht wurde
@@ -155,14 +154,14 @@ protected:
     // ausgeliehen bis
     Date _date_of_return;
     // ausgeliehen von
-    Person *_lender;
+    Person* _lender;
 
 public:
     // Konstruktor
     Medium(string title = "", string publisher = "", int year_of_publication = 0);
     virtual ~Medium();
     // Titel zurückliefern
-    static string get_title();
+    string get_title() const;
     // Ausleiher zurückliefern
     Person *get_lender() const;
     // das Medium "ausleihen", d.h. Person p, date_of_check_out und date_of_return eintragen
@@ -172,38 +171,45 @@ public:
     virtual Medium *clone() const;
 };
 
+
+
 // hier Konstruktor und Methoden
 Medium::Medium(string title, string publisher, int year_of_publication)
-        : _publisher(publisher), _year_of_publication(year_of_publication){
-    get_title();
-}
+    :_title(title), _publisher(publisher), _year_of_publication(year_of_publication), _lender(nullptr) {}
 
 Medium::~Medium() {}
 
-string Medium::get_title(){
+string Medium::get_title() const{
     return _title;
 }
+
 Person* Medium::get_lender() const {
     return _lender;
 }
 
 void Medium::check_out(Person &p, Date date_of_check_out, Date date_of_return) {
-    // Informationen über die Person erhalten
-    string person_name = p.get_name();
+    _lender = &p;
     _date_of_check_out = date_of_check_out;
     _date_of_return = date_of_return;
 }
 
 void Medium::print() const {
-    cout << "Titel: " << get_title() << endl
-    << "Verlag: " << _publisher << endl
-    << "Jahr: " << _year_of_publication << endl
-    << "Ausleiher" << get_lender() << endl;
+    cout << "Titel:         " << _title << endl;
+    cout << "Verlag:        " << _publisher << endl;
+    cout << "Jahr:          " << _year_of_publication << endl;
+    if (_lender != nullptr) {
+        cout << "Ausleiher:     " << _lender->get_name() << " von: " << _date_of_check_out << " bis: " << _date_of_return << endl;
+    }
+    else{
+        cout << "Ausleiher:     " << "-" << endl;
+    }
 }
 
-Medium *Medium::clone() const {
-    return nullptr;
+
+Medium* Medium::clone() const{
+    return new Medium(*this);
 }
+
 
 
 // Klasse für die Bücher als Spezialisierung von Medium
@@ -216,24 +222,25 @@ public:
     // Standardkonstruktor
     Book(string author = "", string title = "", string publisher = "", int year_of_publication = 0);
     // das Buch auf der Konsole ausgeben
-    void print() const override;
+    void print() const;
     Medium *clone() const override;
-
 };
+
+
 
 // hier Konstruktor und Methoden
 Book::Book(string author, string title, string publisher, int year_of_publication)
-    : _author(author), Medium(title, publisher, year_of_publication)  {
-}
+    :Medium(title, publisher, year_of_publication), _author(author) {}
 
 void Book::print() const {
-    cout << "Autor" << _author << endl;
+    cout << "Autor:         " << _author << endl;
     Medium::print();
 }
 
-Medium *Book::clone() const {
-    return Medium::clone();
+Medium* Book::clone() const {
+    return new Book(*this);
 }
+
 
 
 // Klasse für die DVDs als Spezialisierung von Medium
@@ -252,20 +259,17 @@ public:
 };
 
 // hier Konstruktor und Methoden
-
 DVD::DVD(string title, string publisher, int year_of_publication, int play_time)
-    :_c_play_time(play_time), Medium(title, publisher, year_of_publication){
-}
+    :Medium(title, publisher, year_of_publication), _c_play_time(play_time){}
 
-void DVD::print() const{
+void DVD::print() const {
     Medium::print();
-    cout << "Dauer" << _c_play_time << endl;
+    cout << "Dauer:         " << _c_play_time << endl;
 }
 
-Medium *DVD::clone() const {
-    return Medium::clone();
+Medium* DVD::clone() const {
+    return new DVD(*this);
 }
-
 
 // Die Klasse Library verweist auf alle Medien (Bücher und DVDs),
 // die von Personen (Studierende und Dozenten) ausgeliehen werden
@@ -297,37 +301,47 @@ public:
     void print() const;
 };
 
+// hier Konstruktor und Methoden
 Library::Library(int maximal_number_of_media)
     :_c_maximal_number_of_media(maximal_number_of_media){}
 
-void Library::procure_medium(Medium &m) {
+void Library::procure_medium(Medium &medium) {
     if(media.size() < _c_maximal_number_of_media){
-        media.push_back(&m);
+        Medium* medium_copy = medium.clone();
+        media.push_back(medium_copy);
     }
 }
 
-void Library::search_medium(string search_word) {
-    for(const auto& m : media){
-        if (m->get_title().find(search_word) != std::string::npos)  {
-            cout << "Suche nach" << search_word << "Ergebnis:" << endl;
+void Library::search_medium(std::string search_word) {
+    cout << endl << "Suche nach " << "\"" << search_word << "\"" << " Ergebnis:" << endl << "---------------------------------------"  << endl << endl;
+    for (size_t i = 0; i < media.size(); ++i) {
+        if (media[i]->get_title().find(search_word) != std::string::npos) {
+            cout << "Medium " << i << ":" << endl;
+            media[i]->print();
+            cout << endl;
         }
     }
+    cout << "---------------------------------------" << endl;
 }
 
+
 void Library::check_out_medium(int number, Person &p, Date d) {
-    if (number >= 0 && number < media.size()) {
-        Medium *m = media[number];
-        Date return_date(d); // Kopie des Übernahmedatums
-
-        // Bis-Datum berechnen (Übernahmedatum + Ausleihdauer der Person)
-        return_date.operator+(p.get_check_out_duration());
-
+    int size = static_cast <int>(media.size());
+    if (number >= 0 && number < size) {
+        Medium *medium = media[number];
+        // Call the check_out function of the medium
+        medium->check_out(p, d, d+p.get_check_out_duration());
     }
 }
 
-
-
-// hier Konstruktor und Methoden
+void Library::print() const {
+    cout << endl << "Bibliothekskatalog:\n---------------------------------------" << endl;
+    for (size_t i = 0; i < media.size(); ++i) {
+        cout << endl << "Medium " << i << ":" << endl ;
+        media[i]->print();
+    }
+    cout << endl << "---------------------------------------" << endl;
+}
 
 
 int main(int argc, char *argv[])
@@ -348,7 +362,9 @@ int main(int argc, char *argv[])
     DVD d3("Chuck", "Warner Bros (Universal Pictures)", 2013, 3774);
     // Ein Buch und eine DVD ausgeben
     b1.print();
+    cout << endl;
     d1.print();
+    cout << endl;
     // Kopien der Bücher und DVDs (Medien) in die Bibliothek
     // einfügen
     library.procure_medium(b1);
@@ -379,4 +395,6 @@ int main(int argc, char *argv[])
     // Bestand der Bibliothek ausgeben
     library.print();
 }
+
+
 
